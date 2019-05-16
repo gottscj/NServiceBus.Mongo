@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using NServiceBus.Mongo.Gateway;
 using NServiceBus.Mongo.Subscriptions;
 using NServiceBus.Mongo.Timeouts;
 
@@ -9,6 +10,8 @@ namespace NServiceBus.Mongo
         IMongoCollection<MongoTimeoutData> Timeouts { get; }
         
         IMongoCollection<MongoSubscription> Subscriptions { get; }
+        
+        IMongoCollection<MongoGatewayMessage> GatewayMessages { get; }
         
         IMongoDatabase Database { get; }
     }
@@ -31,6 +34,9 @@ namespace NServiceBus.Mongo
 
         public IMongoCollection<MongoSubscription> Subscriptions =>
             Database.GetCollection<MongoSubscription>("subscriptions");
+
+        public IMongoCollection<MongoGatewayMessage> GatewayMessages =>
+            Database.GetCollection<MongoGatewayMessage>("gatewayMessages");
         
         
         internal void EnsureIndexes()

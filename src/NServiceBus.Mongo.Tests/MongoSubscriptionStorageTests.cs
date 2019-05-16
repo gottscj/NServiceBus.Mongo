@@ -11,11 +11,11 @@ using Tests;
 
 namespace NServiceBus.Mongo.Tests
 {
+    [TestFixture]
     public class MongoSubscriptionStorageTests
     {
         private MongoSubscriptionStorage _subscriptionStorage;
         private MongoDbContext _dbContext;
-        private IFixture _fixture;
         private const string TestEndpoint = "TestEndpoint";
         private const string TestTransport = "TestTransport";
         
@@ -23,13 +23,15 @@ namespace NServiceBus.Mongo.Tests
         public void OneTimeSetUp()
         {
             _dbContext = new MongoDbContext(MongoConnectionUtils.GetConnectionString());
-            _dbContext.Database.DropCollection(_dbContext.Subscriptions.CollectionNamespace.CollectionName);
             _dbContext.EnsureIndexes();
             
             _subscriptionStorage = new MongoSubscriptionStorage(_dbContext);
-            _fixture = new Fixture();
         }
-
+        [SetUp]
+        public void Setup()
+        {
+            _dbContext.Database.DropCollection(_dbContext.Subscriptions.CollectionNamespace.CollectionName);
+        }
         [Test]
         public void Subscribe_NewSubscription_Success()
         {

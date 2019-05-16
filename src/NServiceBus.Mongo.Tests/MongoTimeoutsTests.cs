@@ -10,12 +10,14 @@ using NServiceBus.Mongo.Timeouts;
 
 namespace NServiceBus.Mongo.Tests
 {
+    [TestFixture]
     public class MongoTimeoutsTests
     {
         private MongoTimeouts _mongoTimeouts;
         private MongoDbContext _dbContext;
         private IFixture _fixture;
         private const string TestEndpoint = "MyTestEndpoint";
+        
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
