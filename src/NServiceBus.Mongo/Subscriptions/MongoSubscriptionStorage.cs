@@ -8,11 +8,11 @@ using MongoDB.Driver;
 
 namespace NServiceBus.Mongo.Subscriptions
 {
-    public class MongoSubscriptions : IInitializableSubscriptionStorage
+    public class MongoSubscriptionStorage : IInitializableSubscriptionStorage
     {
         private readonly IMongoDbContext _mongoDbContext;
 
-        public MongoSubscriptions(IMongoDbContext mongoDbContext)
+        public MongoSubscriptionStorage(IMongoDbContext mongoDbContext)
         {
             _mongoDbContext = mongoDbContext;
         }
@@ -20,7 +20,7 @@ namespace NServiceBus.Mongo.Subscriptions
         {
             return _mongoDbContext
                 .Subscriptions
-                .InsertOneAsync(new MongoSubscriptionData
+                .InsertOneAsync(new MongoSubscription
                 {
                     MessageTypeString = messageType.ToString(),
                     Endpoint = subscriber.Endpoint,
@@ -48,12 +48,12 @@ namespace NServiceBus.Mongo.Subscriptions
                 .Project(s => new {s.TransportAddress, s.Endpoint})
                 .ToListAsync();
 
-            return subscribers.Select(s => new Subscriber(s.TransportAddress, s.Endpoint));
+            return subscribers.Select(s => new EquatableSubscriber(s.TransportAddress, s.Endpoint)).Distinct();
         }
 
         public void Init()
         {
-            throw new System.NotImplementedException();
+            // nop
         }
     }
 }

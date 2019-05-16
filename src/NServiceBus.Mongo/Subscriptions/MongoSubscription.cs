@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace NServiceBus.Mongo.Subscriptions
 {
-    public class MongoSubscriptionData
+    public class MongoSubscription
     {
         [BsonId]
         public ObjectId Id { get; set; }

@@ -10,7 +10,7 @@ using NServiceBus.Mongo.Timeouts;
 
 namespace NServiceBus.Mongo.Tests
 {
-    public class MongoTimeoutsHandlerTests
+    public class MongoTimeoutsTests
     {
         private MongoTimeouts _mongoTimeouts;
         private MongoDbContext _dbContext;

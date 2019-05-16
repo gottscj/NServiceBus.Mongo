@@ -1,9 +1,6 @@
-using MongoDB.Bson;
 using MongoDB.Driver;
 using NServiceBus.Mongo.Subscriptions;
 using NServiceBus.Mongo.Timeouts;
-using NServiceBus.Timeout.Core;
-using static MongoDB.Driver.Builders<NServiceBus.Mongo.Timeouts.MongoTimeoutData>;
 
 namespace NServiceBus.Mongo
 {
@@ -11,7 +8,7 @@ namespace NServiceBus.Mongo
     {
         IMongoCollection<MongoTimeoutData> Timeouts { get; }
         
-        IMongoCollection<MongoSubscriptionData> Subscriptions { get; }
+        IMongoCollection<MongoSubscription> Subscriptions { get; }
         
         IMongoDatabase Database { get; }
     }
@@ -32,25 +29,38 @@ namespace NServiceBus.Mongo
         public IMongoCollection<MongoTimeoutData> Timeouts =>
             Database.GetCollection<MongoTimeoutData>("timeouts");
 
-        public IMongoCollection<MongoSubscriptionData> Subscriptions =>
-            Database.GetCollection<MongoSubscriptionData>("subscriptions");
+        public IMongoCollection<MongoSubscription> Subscriptions =>
+            Database.GetCollection<MongoSubscription>("subscriptions");
         
         
         internal void EnsureIndexes()
         {
+            // ---- TIMEOUTS ----
+            var timeoutIndexes = Builders<MongoTimeoutData>.IndexKeys;
             var sagaIndexModel =
-                new CreateIndexModel<MongoTimeoutData>(IndexKeys.Ascending(t => t.SagaId));
+                new CreateIndexModel<MongoTimeoutData>(timeoutIndexes.Ascending(t => t.SagaId));
 
             var endpointIndexModel =
-                new CreateIndexModel<MongoTimeoutData>(IndexKeys.Ascending(t => t.Endpoint));
+                new CreateIndexModel<MongoTimeoutData>(timeoutIndexes.Ascending(t => t.Endpoint));
 
 
             var lockDateTimeIndexModel =
-                new CreateIndexModel<MongoTimeoutData>(IndexKeys.Ascending(t => t.LockDateTime));
+                new CreateIndexModel<MongoTimeoutData>(timeoutIndexes.Ascending(t => t.LockDateTime));
 
-            Timeouts.Indexes.CreateOne(sagaIndexModel);
-            Timeouts.Indexes.CreateOne(endpointIndexModel);
-            Timeouts.Indexes.CreateOne(lockDateTimeIndexModel);
+            Timeouts.Indexes.CreateMany(new[] {sagaIndexModel, endpointIndexModel, lockDateTimeIndexModel});
+            
+            // ---- SUBSCRIPTIONS ----
+            var subscriptionIndexes = Builders<MongoSubscription>.IndexKeys;
+
+            var messageTypeIndex =
+                new CreateIndexModel<MongoSubscription>(subscriptionIndexes.Ascending(t => t.MessageTypeString));
+
+            var transportAddressIndex =
+                new CreateIndexModel<MongoSubscription>(subscriptionIndexes.Ascending(t => t.TransportAddress));
+
+            var endpointIndex = new CreateIndexModel<MongoSubscription>(subscriptionIndexes.Ascending(t => t.Endpoint));
+
+            Subscriptions.Indexes.CreateMany(new[] {messageTypeIndex, transportAddressIndex, endpointIndex});
         }
     }
 }

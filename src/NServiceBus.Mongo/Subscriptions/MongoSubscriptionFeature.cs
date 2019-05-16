@@ -11,7 +11,7 @@ namespace NServiceBus.Mongo.Subscriptions
         }
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<MongoSubscriptions>(DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<MongoSubscriptionStorage>(DependencyLifecycle.InstancePerCall);
         }
     }
 }
